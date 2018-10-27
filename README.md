@@ -6,10 +6,12 @@ We present an encoder-decoder neural network to remove deformations caused by ex
 ### Requeriments
 * Python 3+
 * C++ 11+
+* PointCloud Library (PCL)
 * Tensorflow for GPU (and its dependencies)
 * OpenCV
 * RAM enough to hold all your train images
 
+## Step-by-Step
 1. Clone the repository
 2. Verify the dependencies installation with install.sh
 3. Execute a specific code (normalization, inference, etc...)

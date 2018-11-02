@@ -48,7 +48,7 @@ int main(){
 	vector<pcl::PointCloud<pcl::PointXYZRGBA>::Ptr > alinhadas;
 	PointCloudT::Ptr cloud_icp (new PointCloudT);
 	PointCloudT::Ptr modelo (new PointCloudT);
-	char dirn[] = "../../dataset/neutral";
+	char dirn[] = argv[1];
     	DIR *dir = NULL;
     	struct dirent *drnt = NULL;
 	char * pch, * pch2;
@@ -77,17 +77,6 @@ int main(){
 						cout << drnt->d_name << " lido com sucesso" << endl;
 						clouds.push_back(cloud);
 						nomes.push_back((string) drnt->d_name);
-						string line;
-  						ifstream myfile (("../../dataset/neutral/" + (string)drnt->d_name + ".ldm").c_str());
-						if (myfile.is_open()){
-							vector<int> idx;
-							while ( getline (myfile,line) ){
-								vector<string> v = explode(line,' ');
-								idx.push_back(stoi(v[0]));
-							}
-							myfile.close();
-							indexes.push_back(idx);
-						}
 					}
 					pch = strtok (NULL, ".");
 				}
@@ -98,51 +87,14 @@ int main(){
 		tFimLocal = clock();
 		cout << "Carregamento do diretorio executado em " << ((tFimLocal - tInicioLocal)/CLOCKS_PER_SEC)<< "s" << endl;
 
-		if (pcl::io::loadPCDFile<pcl::PointXYZRGBA> ("../modelo/modelo.pcd", *modelo) == -1){
+		if (pcl::io::loadPCDFile<PointT> ("../utilities/model.pcd", *modelo) == -1){
 			PCL_ERROR ("Couldn't read file a file\n");
 			return (-1);
 		}
 
-		x[1] = numeric_limits<float>::min();
-		y[1] = numeric_limits<float>::min();
-		z[1] = numeric_limits<float>::min();
-		x[0] = numeric_limits<float>::max();
-		y[0] = numeric_limits<float>::max();
-		z[0] = numeric_limits<float>::max();
-		for(int i = 0; i < modelo->size(); i++){
-			PointT p = modelo->points[i];
-			if(p.x < x[0])
-				x[0] = p.x;
-			if(p.y < y[0])
-				y[0] = p.y;
-			if(p.z < z[0])
-				z[0] = p.z;
-			if(p.x > x[1])
-				x[1] = p.x;
-			if(p.y > y[1])
-				y[1] = p.y;
-			if(p.z > z[1])
-				z[1] = p.z;
-		}
-
 		PointCloudT::Ptr cloud_in (new PointCloudT);
 		PointCloudT::Ptr saida (new PointCloudT);
-
-		PointCloudT::Ptr modelo2 (new PointCloudT);
-		string line2;
-		ifstream myfile2 ("../modelo/modelo.ldm");
-		vector<int> vid;
-		if (myfile2.is_open()){
-			while ( getline (myfile2,line2) ){
-				vector<string> v = explode(line2,' ');
-				vid.push_back(stoi(v[0]));
-			}
-			myfile2.close();
-		}
-		for(int i = 0; i < modelo->size(); i++){
-			if((modelo->points[i].y < modelo->points[vid[4]].y + 10) && (modelo->points[i].y > modelo->points[vid[4]].y - 10))
-				modelo2->push_back(modelo->points[i]);
-		}
+		
 		cout << "Modelo carregado com sucesso!" << endl;
 		cout << indexes.size() << " | " << nomes.size() << endl;
 
@@ -152,62 +104,20 @@ int main(){
 			tInicioLocal = clock();
 			cloud_in->points.clear();
 			saida->points.clear();
-			int radius = 10;
-			for(int j = 0; j < clouds[i]->points.size(); j++){
-				double marco = clouds[i]->points[indexes[i][4]].y;
-				if((clouds[i]->points[j].y < marco + radius) && (clouds[i]->points[j].y > marco - radius))
-					cloud_in->push_back(clouds[i]->points[j]);
-			}
-			cout << clouds[i]->size() << ", " << cloud_in->size() << " | " << modelo->size() << ", " << modelo2->size() << endl;
-
+			cloud_in = clouds[i];
+			
 			pcl::IterativeClosestPoint<PointT, PointT> icp;
 			icp.setInputSource(cloud_in);
-			icp.setInputTarget(modelo2);
-			icp.setMaximumIterations (20);
+			icp.setInputTarget(modelo);
+			icp.setMaximumIterations(20);
 			pcl::PointCloud<PointT> r;
 			icp.align(r);
 			r.points.clear();
 
 			Eigen::Matrix4f transform = icp.getFinalTransformation();
-			lx[1] = numeric_limits<float>::min();
-			ly[1] = numeric_limits<float>::min();
-			lz[1] = numeric_limits<float>::min();
-			lx[0] = numeric_limits<float>::max();
-			ly[0] = numeric_limits<float>::max();
-			lz[0] = numeric_limits<float>::max();
-			for(int j = 0; j < clouds[i]->points.size(); j++){
-				PointT p = clouds[i]->points[j];
-				Eigen::Vector4f v(p.x,p.y,p.z,1);
-				Eigen::Vector4f w = transform * v;
-				p.x = w[0]/w[3];
-				p.y = w[1]/w[3];
-				p.z = w[2]/w[3];
-				if(p.x < lx[0])
-					lx[0] = p.x;
-				if(p.y < ly[0])
-					ly[0] = p.y;
-				if(p.z < lz[0])
-					lz[0] = p.z;
-				if(p.x > lx[1])
-					lx[1] = p.x;
-				if(p.y > ly[1])
-					ly[1] = p.y;
-				if(p.z > lz[1])
-					lz[1] = p.z;
-				r.points.push_back(p);
-			}
-
+			
 			pcl::KdTreeFLANN<pcl::PointXYZRGBA> kdtree;
 			PointCloudT::Ptr alinhada (new PointCloudT);
-			alinhada->resize(r.size());
-			for(int k = 0; k < r.size(); k++){
-				PointT p = r.points[k];
-				p.x = ((x[1] - x[0]) * (p.x - lx[0]))/(lx[1] - lx[0]) + x[0];
-				p.y = ((y[1] - y[0]) * (p.y - ly[0]))/(ly[1] - ly[0]) + y[0];
-				p.z = ((z[1] - z[0]) * (p.z - lz[0]))/(lz[1] - lz[0]) + z[0];
-				alinhada->points[k] = p;
-			}
-
 			kdtree.setInputCloud(modelo);
 			int K = 1;
 			vector<int> busca(K);
@@ -219,9 +129,6 @@ int main(){
 				if ( kdtree.nearestKSearch (alinhada->points[j], K, busca, euler) > 0 ){
 					int a = 0;
 					PointT p = alinhada->points[j];
-					/*p.r = 255;
-					p.g = 0;
-					p.b = 0;*/
 					cloud_icp->points[busca[a]] = p;
 				}
 			}
@@ -256,7 +163,7 @@ int main(){
 			}
 
 			stringstream pathfim;
-			pathfim << "../../base_alinhada/neutral/" << nomes[i] << ".pcd";
+			pathfim << argv[2] << nomes[i] << ".pcd";
 			pcl::io::savePCDFile(pathfim.str(),*cloud_icp);
 			tFimLocal = clock();
  			cout << i << "# - " << nomes[i] << " alinhado ("<< r.size() << "-" << cloud_icp->size() << ") salva com sucesso em " << ((tFimLocal - tInicioLocal) / (CLOCKS_PER_SEC / 1000)) << "ms" << endl;

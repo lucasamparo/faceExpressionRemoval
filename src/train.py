@@ -1,5 +1,8 @@
+import os
+from network_model import Network
+from dataset import Dataset
 
-Class TrainModel:
+class TrainModel:
 	def train(self):
 		BATCH_SIZE = 256
 
@@ -13,12 +16,11 @@ Class TrainModel:
 			sess.run(tf.global_variables_initializer())
 			network.loadRecog(sess)
 
-			summary_writer = tf.summary.FileWriter('{}/{}-{}'.format('logs', network.description, timestamp), graph=tf.get_default_graph())
-			saver = tf.train.Saver(var_list=network.variables, max_to_keep=10)
+			saver = tf.train.Saver(var_list=network.variables)
 
 			#Pre treino
 			n_epochs = 50
-			print("Iniciando Pretreino")
+			print("Starting Pretrain")
 			for epoch_i in range(n_epochs):
 				dataset.reset_batch_pointer()
 
@@ -41,7 +43,7 @@ Class TrainModel:
 			test_mse = []
 			n_epochs = 3000
 			global_start = time.time()
-			print("Iniciando treino real")
+			print("Starting Train")
 			for epoch_i in range(n_epochs):
 				dataset.reset_batch_pointer()
 
@@ -89,24 +91,9 @@ Class TrainModel:
 						print("Best accuracy: {} in batch {}".format(max_acc[0], max_acc[1]))
 						print("Total time: {}".format(time.time() - global_start))
 
-						# Plot example reconstructions
-						n_examples = 12
-						permutation = np.random.permutation(n_examples)
-						inputs = []
-						targets = []
-						for i in range(n_examples):
-							inputs.append(np.array(dataset.valid_inputs[permutation[i]]))
-							targets.append(np.array(dataset.valid_targets[permutation[i]]))
-
-						test_inputs, test_targets = np.array(inputs, dtype=np.uint8), np.array(targets, dtype=np.uint8)
-						test_inputs = np.multiply(test_inputs, 1.0 / 255)
-
-						test_segmentation, test_final = sess.run([network.segmentation_result, network.final_result], feed_dict={
-							network.inputs: np.reshape(test_inputs,[n_examples, network.IMAGE_HEIGHT, network.IMAGE_WIDTH, 1]), network.is_training: False})
-
 						if (batch_num > 50000):
 							print("saving model...")
-							saver.save(sess,"save/checkpoint.data")
+							saver.save(sess,os.path.join("save","checkpoint.data"))
 
 if __name__ == '__main__':
 	t = TrainModel()

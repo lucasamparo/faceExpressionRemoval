@@ -1,1 +1,4 @@
 build/*
+data128_128/*
+*.pyc
+src/_pycache_*

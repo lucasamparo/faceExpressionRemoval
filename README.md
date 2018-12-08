@@ -4,8 +4,11 @@ We present an encoder-decoder neural network to remove deformations caused by ex
 ## Implementation Details
 
 ### Normalization
+![Normalization](https://raw.githubusercontent.com/lucasamparo/faceExpressionRemoval/master/images/projection.png)
 
 ### Network Model
+![Network Pipeline](https://raw.githubusercontent.com/lucasamparo/faceExpressionRemoval/master/images/pipeline.png)
+![Network Model](https://raw.githubusercontent.com/lucasamparo/faceExpressionRemoval/master/images/neural_net_model.png)
 
 ## Installation
 
@@ -15,6 +18,7 @@ We present an encoder-decoder neural network to remove deformations caused by ex
 * PointCloud Library (PCL)
 * Tensorflow for GPU (and its dependencies)
 * OpenCV
+* Scipy, Scikit-learn
 * RAM enough to hold all your train images
 
 ## Step-by-Step

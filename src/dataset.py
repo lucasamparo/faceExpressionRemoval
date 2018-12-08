@@ -1,11 +1,19 @@
+import os, math, sys
+import cv2
+
 class Dataset:
-    def __init__(self, batch_size, folder='data128x128', include_hair=False):
+    '''
+    Dataset Class
+    Input: Size of the image batch and the path to the images
+    Output: Load all images and delivery the training batches
+    '''
+    def __init__(self, batch_size, folder='data128x128'):
         self.batch_size = batch_size
         self.include_hair = include_hair
         
-        train_files = os.listdir(os.path.join(folder, 'inputs/train'))
-        validation_files = os.listdir(os.path.join(folder, 'inputs/valid'))
-        test_files = os.listdir(os.path.join(folder, 'inputs/test'))
+        train_files = os.listdir(os.path.join(folder, 'inputs','train'))
+        validation_files = os.listdir(os.path.join(folder, 'inputs','valid'))
+        test_files = os.listdir(os.path.join(folder, 'inputs','test'))
 
         self.train_inputs, self.train_paths, self.train_targets = self.file_paths_to_images(folder, train_files)
         self.test_inputs, self.test_paths, self.test_targets = self.file_paths_to_images(folder, test_files, mode="test")

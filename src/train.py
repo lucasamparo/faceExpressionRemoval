@@ -1,4 +1,6 @@
-import os
+import os, time
+import numpy as np
+import tensorflow as tf
 from network_model import Network
 from dataset import Dataset
 
@@ -8,7 +10,7 @@ class TrainModel:
 
 		network = Network()
 
-		dataset = Dataset(folder='data{}_{}'.format(network.IMAGE_HEIGHT, network.IMAGE_WIDTH), include_hair=False, batch_size=BATCH_SIZE)
+		dataset = Dataset(folder='data{}_{}'.format(network.IMAGE_HEIGHT, network.IMAGE_WIDTH), batch_size=BATCH_SIZE)
 
 		inputs, targets = dataset.next_batch()
 

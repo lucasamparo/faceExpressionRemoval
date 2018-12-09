@@ -1,5 +1,6 @@
 import os, math, sys
 import cv2
+import numpy as np
 
 class Dataset:
     '''
@@ -9,7 +10,6 @@ class Dataset:
     '''
     def __init__(self, batch_size, folder='data128x128'):
         self.batch_size = batch_size
-        self.include_hair = include_hair
         
         train_files = os.listdir(os.path.join(folder, 'inputs','train'))
         validation_files = os.listdir(os.path.join(folder, 'inputs','valid'))

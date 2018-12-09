@@ -4,11 +4,11 @@ We present an encoder-decoder neural network to remove deformations caused by ex
 ## Implementation Details
 
 ### Normalization
-![Normalization](projection.png?raw=True "Normalization")
+![Normalization](images/projection.png?raw=True "Normalization")
 
 ### Network Model
-![Network Pipeline](pipeline.png?raw=True "Network Pipeline")
-![Network Model](neural_net_model.png?raw=True "Network Model")
+![Network Pipeline](images/pipeline.png?raw=True "Network Pipeline")
+![Network Model](images/neural_net_model.png?raw=True "Network Model")
 
 ## Installation
 

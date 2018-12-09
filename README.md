@@ -4,11 +4,11 @@ We present an encoder-decoder neural network to remove deformations caused by ex
 ## Implementation Details
 
 ### Normalization
-![Normalization](https://raw.githubusercontent.com/lucasamparo/faceExpressionRemoval/master/images/projection.png)
+![Normalization](projection.png?raw=True "Normalization")
 
 ### Network Model
-![Network Pipeline](https://raw.githubusercontent.com/lucasamparo/faceExpressionRemoval/master/images/pipeline.png)
-![Network Model](https://raw.githubusercontent.com/lucasamparo/faceExpressionRemoval/master/images/neural_net_model.png)
+![Network Pipeline](pipeline.png?raw=True "Network Pipeline")
+![Network Model](neural_net_model.png?raw=True "Network Model")
 
 ## Installation
 

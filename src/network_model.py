@@ -14,7 +14,6 @@ class Network:
     IMAGE_HEIGHT = 128
     IMAGE_WIDTH = 128
     IMAGE_CHANNELS = 1
-    epoch = 1
 
     def __init__(self, layers=None, skip_connections=False):
         with tf.variable_scope('encoder-decoder'):
@@ -35,6 +34,7 @@ class Network:
             self.inputs = tf.placeholder(tf.float32, [None, self.IMAGE_HEIGHT, self.IMAGE_WIDTH, self.IMAGE_CHANNELS], name='inputs')
             self.targets = tf.placeholder(tf.float32, [None, self.IMAGE_HEIGHT, self.IMAGE_WIDTH, 1], name='targets')
             self.is_training = tf.placeholder_with_default(False, [], name='is_training')
+            self.nepoch = tf.placeholder(tf.int32, [], name="nepoch")
             self.description = ""
 
             self.layers = {}
@@ -81,8 +81,8 @@ class Network:
         self.cost_rec = cost_rec1 + cost_rec2
         self.cost_mse = mean
         
-        self.train_op_rec = tf.train.AdamOptimizer(learning_rate=tf.train.polynomial_decay(10e-5, self.epoch, 10000, 10e-7)).minimize(self.cost_rec)
-        self.train_op_mse = tf.train.AdamOptimizer(learning_rate=tf.train.polynomial_decay(10e-4, self.epoch, 10000, 10e-5)).minimize(self.cost_mse)
+        self.train_op_rec = tf.train.AdamOptimizer(learning_rate=tf.train.polynomial_decay(10e-5, self.nepoch, 10000, 10e-7)).minimize(self.cost_rec)
+        self.train_op_mse = tf.train.AdamOptimizer(learning_rate=tf.train.polynomial_decay(10e-4, self.nepoch, 10000, 10e-5)).minimize(self.cost_mse)
 
     def loadRecog(self, sess):
         self.rec1.load(sess)

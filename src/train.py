@@ -20,7 +20,6 @@ class TrainModel:
 
 			saver = tf.train.Saver(var_list=network.variables)
 
-			#Pre treino
 			n_epochs = 50
 			print("Starting Pretrain")
 			for epoch_i in range(n_epochs):
@@ -37,7 +36,7 @@ class TrainModel:
 					batch_inputs = np.multiply(batch_inputs, 1.0 / 255)
 					batch_targets = np.multiply(batch_targets, 1.0 / 255)
 
-					cost1, rec,_ = sess.run([network.cost_mse, network.cost_rec, network.train_op_mse],feed_dict={network.inputs: batch_inputs, network.targets: batch_targets, network.is_training: True})
+					cost1, rec,_ = sess.run([network.cost_mse, network.cost_rec, network.train_op_mse],feed_dict={network.inputs: batch_inputs, network.targets: batch_targets, network.is_training: True, network.nepoch: batch_num})
 					end = time.time()
 					print('{}/{}, epoch: {}, mse/rec: {}/{}, batch time: {}'.format(batch_num, n_epochs * dataset.num_batches_in_epoch(), epoch_i, cost1, rec, round(end - start,5)))        
 
@@ -61,9 +60,9 @@ class TrainModel:
 					batch_targets = np.multiply(batch_targets, 1.0 / 255)
 
 					if batch_num % 5 == 0:
-						cost1, rec, _ = sess.run([network.cost_mse, network.cost_rec, network.train_op_rec],feed_dict={network.inputs: batch_inputs, network.targets: batch_targets, network.is_training: True})
+						cost1, rec, _ = sess.run([network.cost_mse, network.cost_rec, network.train_op_rec],feed_dict={network.inputs: batch_inputs, network.targets: batch_targets, network.is_training: True, network.nepoch: batch_num})
 					else:
-						cost1, rec, _ = sess.run([network.cost_mse, network.cost_rec, network.train_op_mse],feed_dict={network.inputs: batch_inputs, network.targets: batch_targets, network.is_training: True})
+						cost1, rec, _ = sess.run([network.cost_mse, network.cost_rec, network.train_op_mse],feed_dict={network.inputs: batch_inputs, network.targets: batch_targets, network.is_training: True, network.nepoch: batch_num})
 
 					end = time.time()
 					print('{}/{}, epoch: {}, mse/recog: {}/{}, batch time: {}'.format(batch_num, n_epochs * dataset.num_batches_in_epoch(), epoch_i, cost1, rec, round(end - start,5)))
@@ -79,8 +78,6 @@ class TrainModel:
 
 						test_accuracy, mse = sess.run([network.accuracy, network.mse],
 														  feed_dict={network.inputs: test_inputs,network.targets: test_targets,network.is_training: False})
-
-						#summary_writer.add_summary(summary, batch_num)
 
 						print('Step {}, test accuracy: {}'.format(batch_num, test_accuracy))
 						min_mse = (0,0)
